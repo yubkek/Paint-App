@@ -1,9 +1,11 @@
 from tkinter import ttk
 import tkinter as tk
+from PIL import Image, ImageTk
 
 class ButtonFrame(tk.Frame):
     def __init__(self, window):
         super().__init__(window)
+        self.window = window
     
         # frame set up
         self.rowconfigure((0,1,2,3,4,5), weight=1, uniform='a')
@@ -14,16 +16,16 @@ class ButtonFrame(tk.Frame):
 
     def create_widgets(self):
         # color buttons
-        self.black_button = tk.Button(self, background='black')
-        self.red_button = tk.Button(self, background='red')
-        self.blue_button = tk.Button(self, background='blue')
-        self.green_button = tk.Button(self, background='green')
-        self.yellow_button = tk.Button(self, background='yellow')
+        self.black_button = tk.Button(self, background='black', command=lambda: self.window.set_color('black'))
+        self.red_button = tk.Button(self, background='red', command=lambda: self.window.set_color('red'))
+        self.blue_button = tk.Button(self, background='blue', command=lambda: self.window.set_color('blue'))
+        self.green_button = tk.Button(self, background='green', command=lambda: self.window.set_color('green'))
+        self.yellow_button = tk.Button(self, background='yellow', command=lambda: self.window.set_color('yellow'))
 
         # tool buttons
-        self.eraser_image = tk.PhotoImage(file='images/s.jpg', height=50, width=50)
-        self.clear_image = tk.PhotoImage(file='images/clear.png', height=50, width=50)
-        self.fill_image = tk.PhotoImage(file='images/fill.png', height=50, width=50)
+        self.eraser_image = ImageTk.PhotoImage((Image.open('images/eraser.png')).resize((120,120)))
+        self.clear_image = ImageTk.PhotoImage((Image.open('images/clear.png')).resize((120,120)))
+        self.fill_image = ImageTk.PhotoImage((Image.open('images/fill.png')).resize((120,120)))
         self.eraser_button = ttk.Button(self, image=self.eraser_image)
         self.clear_button = ttk.Button(self, image=self.clear_image)
         self.fill_button = ttk.Button(self, image=self.fill_image)
@@ -42,14 +44,24 @@ class ButtonFrame(tk.Frame):
 class CanvasFrame(tk.Frame):
     def __init__(self, window):
         super().__init__(window, bg='white')
-        
-        # create frame widgets
+        self.window = window
+
+        # create frame widgets  
         self.create_widgets()
 
     def create_widgets(self):
         # main canvas
         self.canvas = tk.Canvas(self, background='white')
         self.canvas.pack(expand=True, fill='both')
+        self.canvas.bind()
+        self.canvas.bind('<B1-Motion>', self.draw)
+        self.canvas.bind('<Button-1>', self.draw)
+    
+    def draw(self, event):
+        self.canvas.create_oval((event.x, event.y, event.x, event.y), 
+                                fill=self.window.get_color() , 
+                                width=self.window.current_brush_size
+                                )
 
 class SliderFrame(tk.Frame):
     def __init__(self, window):

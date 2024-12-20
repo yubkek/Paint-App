@@ -1,15 +1,12 @@
 from tkinter import ttk
 import tkinter as tk
 from widgets import *
+from PIL import Image, ImageTk
 W = 1200
 H = 900
 
 class Paint(tk.Tk):
     def __init__(self):
-        # paint variables
-        current_color = 'black'
-        current_brush_size = 3
-
         # window set up
         super().__init__()
         self.title('Paint')
@@ -17,6 +14,10 @@ class Paint(tk.Tk):
         self.rowconfigure((0,1,2,3,4,5), weight=1, uniform='a')
         self.columnconfigure((0,1,2), weight=1, uniform='a')
         self.resizable(width=False, height=False)
+
+        # paint variables
+        self.current_color = 'black'
+        self.current_brush_size = 3
 
         # create widgets 
         self.create_widgets()
@@ -40,6 +41,14 @@ class Paint(tk.Tk):
 
         # slider frame
         self.slider_frame.grid(row=5, column=0, columnspan=2, sticky='nsew')
+
+    def set_color(self, color):
+        self.current_color = color
+        print(self.current_color)
+
+    def get_color(self) -> str:
+        print(self.current_color)
+        return self.current_color
 
 if __name__ == "__main__":
     paint_app = Paint()
