@@ -17,7 +17,7 @@ class Paint(tk.Tk):
 
         # paint variables
         self.current_color = 'black'
-        self.current_brush_size = 10
+        self.current_brush_size = tk.IntVar(value=10)
         self.clear = False
         self.fill = False
 
@@ -36,13 +36,13 @@ class Paint(tk.Tk):
 
     def place_widgets(self):
         # canvas frame
-        self.canvas_frame.grid(row=0, column=0, rowspan=5, columnspan=2, sticky='nsew')
+        self.canvas_frame.grid(row=0, column=0, rowspan=4, columnspan=2, sticky='nsew')
 
         # button frame
         self.button_frame.grid(row=0, column=2, rowspan=5, columnspan=1, sticky='nsew')
 
         # slider frame
-        self.slider_frame.grid(row=5, column=0, columnspan=2, sticky='nsew')
+        self.slider_frame.grid(row=4, column=0, columnspan=2, sticky='nsew')
 
     def set_color(self, color):
         self.current_color = color
@@ -54,7 +54,7 @@ class Paint(tk.Tk):
         self.current_brush_size = brush_width
 
     def get_brush(self) -> int:
-        return self.current_brush_size
+        return self.current_brush_size.get()
     
     def set_clear(self):
         self.clear = not self.clear

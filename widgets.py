@@ -78,4 +78,11 @@ class CanvasFrame(tk.Frame):
 
 class SliderFrame(tk.Frame):
     def __init__(self, window):
-        super().__init__(window, bg='white')
+        super().__init__(window)
+        self.window = window
+
+        self.create_widgets()
+    
+    def create_widgets(self):
+        self.scale = ttk.Scale(self, orient='horizontal', from_=1, to=50, length=600, variable=self.window.current_brush_size)
+        self.scale.place(relx=0.6, rely=0.5, anchor='center')
