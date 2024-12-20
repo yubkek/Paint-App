@@ -21,9 +21,12 @@ class ButtonFrame(tk.Frame):
         self.yellow_button = tk.Button(self, background='yellow')
 
         # tool buttons
-        self.eraser_button = ttk.Button(self)
-        self.clear_button = ttk.Button(self)
-        self.fill_button = ttk.Button(self)
+        self.eraser_image = tk.PhotoImage(file='images/s.jpg', height=50, width=50)
+        self.clear_image = tk.PhotoImage(file='images/clear.png', height=50, width=50)
+        self.fill_image = tk.PhotoImage(file='images/fill.png', height=50, width=50)
+        self.eraser_button = ttk.Button(self, image=self.eraser_image)
+        self.clear_button = ttk.Button(self, image=self.clear_image)
+        self.fill_button = ttk.Button(self, image=self.fill_image)
 
         # place
         self.black_button.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
@@ -45,7 +48,7 @@ class CanvasFrame(tk.Frame):
 
     def create_widgets(self):
         # main canvas
-        self.canvas = tk.Canvas(self, background='red')
+        self.canvas = tk.Canvas(self, background='white')
         self.canvas.pack(expand=True, fill='both')
 
 class SliderFrame(tk.Frame):
