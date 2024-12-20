@@ -26,9 +26,9 @@ class ButtonFrame(tk.Frame):
         self.eraser_image = ImageTk.PhotoImage((Image.open('images/eraser.png')).resize((120,120)))
         self.clear_image = ImageTk.PhotoImage((Image.open('images/clear.png')).resize((120,120)))
         self.fill_image = ImageTk.PhotoImage((Image.open('images/fill.png')).resize((120,120)))
-        self.eraser_button = ttk.Button(self, image=self.eraser_image)
-        self.clear_button = ttk.Button(self, image=self.clear_image)
-        self.fill_button = ttk.Button(self, image=self.fill_image)
+        self.eraser_button = tk.Button(self, image=self.eraser_image, command=lambda: self.window.set_color('white'))
+        self.clear_button = tk.Button(self, image=self.clear_image, command=lambda: self.window.set_clear())
+        self.fill_button = tk.Button(self, image=self.fill_image, command=lambda: self.window.set_fill())
 
         # place
         self.black_button.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
@@ -58,10 +58,23 @@ class CanvasFrame(tk.Frame):
         self.canvas.bind('<Button-1>', self.draw)
     
     def draw(self, event):
-        self.canvas.create_oval((event.x, event.y, event.x, event.y), 
-                                fill=self.window.get_color() , 
-                                width=self.window.current_brush_size
-                                )
+        if self.window.get_clear() == True:
+            self.canvas.delete('all')
+            self.window.set_clear()
+        elif self.window.get_fill() == True:
+            self.canvas.delete('all')
+            self.canvas.create_rectangle((0,0,900,800), fill=self.window.get_color())
+            self.window.set_fill()
+        else:
+            self.canvas.create_oval((event.x, 
+                                    event.y, 
+                                    event.x, 
+                                    event.y), 
+                                    fill=self.window.get_color(), 
+                                    outline=self.window.get_color(),
+                                    width=self.window.get_brush()
+                                    )
+        
 
 class SliderFrame(tk.Frame):
     def __init__(self, window):

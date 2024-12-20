@@ -17,7 +17,9 @@ class Paint(tk.Tk):
 
         # paint variables
         self.current_color = 'black'
-        self.current_brush_size = 3
+        self.current_brush_size = 10
+        self.clear = False
+        self.fill = False
 
         # create widgets 
         self.create_widgets()
@@ -44,11 +46,29 @@ class Paint(tk.Tk):
 
     def set_color(self, color):
         self.current_color = color
-        print(self.current_color)
 
     def get_color(self) -> str:
-        print(self.current_color)
         return self.current_color
+    
+    def set_brush(self, brush_width):
+        self.current_brush_size = brush_width
+
+    def get_brush(self) -> int:
+        return self.current_brush_size
+    
+    def set_clear(self):
+        self.clear = not self.clear
+        print(self.clear)
+
+    def get_clear(self) -> bool:
+        return self.clear
+    
+    def set_fill(self):
+        self.fill = not self.fill
+        print(self.fill)
+
+    def get_fill(self) -> bool:
+        return self.fill
 
 if __name__ == "__main__":
     paint_app = Paint()
