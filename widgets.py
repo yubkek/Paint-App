@@ -166,5 +166,21 @@ class SliderFrame(tk.Frame):
         self.create_widgets()
     
     def create_widgets(self):
-        self.scale = ttk.Scale(self, orient='horizontal', from_=1, to=50, length=600, variable=self.window.current_brush_size)
+        self.scale = ttk.Scale(self, orient='horizontal', from_=1, to=50, length=600, variable=self.window.current_brush_size, command=self.update_circle)
         self.scale.place(relx=0.6, rely=0.5, anchor='center')
+        
+        self.circle_canvas = tk.Canvas(self, background='white', width=150, height=150)
+        self.circle_canvas.place(relx=0.02, rely=0.5, anchor='w')
+        self.circle_canvas.create_oval((75,75,75,75), 
+                                fill=self.window.get_color(), 
+                                outline=self.window.get_color(),
+                                width=self.window.get_brush()
+                                )
+        
+    def update_circle(self, event):
+        self.circle_canvas.delete('all')
+        self.circle_canvas.create_oval((75,75,75,75), 
+                                fill=self.window.get_color(), 
+                                outline=self.window.get_color(),
+                                width=self.window.get_brush()
+                                )
