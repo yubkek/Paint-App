@@ -2,11 +2,16 @@ from tkinter import ttk
 import tkinter as tk
 from widgets import *
 from PIL import Image, ImageTk
+import pickle
 W = 1200
 H = 900
 
 class Paint(tk.Tk):
     def __init__(self):
+        # history of canvas
+        self.undo_list = []
+        self.redo_list = []
+
         # window set up
         super().__init__()
         self.title('Paint')
