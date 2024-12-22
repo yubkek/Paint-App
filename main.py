@@ -63,14 +63,12 @@ class Paint(tk.Tk):
     
     def set_clear(self):
         self.clear = not self.clear
-        print(self.clear)
 
     def get_clear(self) -> bool:
         return self.clear
     
     def set_fill(self):
         self.fill = not self.fill
-        print(self.fill)
 
     def get_fill(self) -> bool:
         return self.fill

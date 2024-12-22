@@ -31,6 +31,12 @@ class ButtonFrame(tk.Frame):
         self.clear_button = tk.Button(self, image=self.clear_image, command=lambda: self.window.set_clear())
         self.fill_button = tk.Button(self, image=self.fill_image, command=lambda: self.window.set_fill())
 
+        # undo and redo buttons
+        self.undo_image = ImageTk.PhotoImage((Image.open('images/undo.png')).resize((120,120)))
+        self.redo_image = ImageTk.PhotoImage((Image.open('images/redo.png')).resize((120,120)))
+        self.undo_button = tk.Button(self, image=self.undo_image, command=lambda: self.window.event_generate("<KeyPress-r>"))
+        self.redo_button = tk.Button(self, image=self.redo_image, command=lambda : self.window.event_generate("<KeyPress-s>"))
+
         # place
         self.black_button.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         self.red_button.grid(row=4, column=0, sticky='nsew', padx=10, pady=10)
@@ -40,6 +46,9 @@ class ButtonFrame(tk.Frame):
         self.eraser_button.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
         self.clear_button.grid(row=2, column=1, sticky='nsew', padx=10, pady=10)
         self.fill_button.grid(row=1, column=1, sticky='nsew', padx=10, pady=10)
+
+        self.undo_button.grid(row=3, column=1, sticky='nsew', padx=10, pady=10)
+        self.redo_button.grid(row=4, column=1, sticky='nsew', padx=10, pady=10)
 
 
 class CanvasFrame(tk.Frame):
@@ -54,90 +63,61 @@ class CanvasFrame(tk.Frame):
         # main canvas
         self.canvas = tk.Canvas(self, background='white')
         self.canvas.pack(expand=True, fill='both')
-        self.canvas.bind()
         self.canvas.bind('<B1-Motion>', self.draw)
         self.canvas.bind('<Button-1>', self.draw)
         self.window.bind('<ButtonRelease-1>', self.save)
         self.window.bind('<KeyPress-r>', self.restore_state_undo)
+        self.window.bind('<KeyPress-s>', self.restore_state_redo)
+
+    def get_options(self, options):
+        return {
+            key: value[-1]
+            for key, value in options.items()
+        }
 
     def save(self, event):
-        saved_canvas = tk.Canvas(self, background='white')
-        saved_canvas.bind()
-        saved_canvas.bind('<B1-Motion>', self.draw)
-        saved_canvas.bind('<Button-1>', self.draw)
-        saved_canvas.bind('<ButtonRelease-1>', self.save)
-        saved_canvas.bind('<KeyPress-r>', self.restore_state_undo)
+        if event.widget != self.canvas:
+            return
+        save_canvas = tk.Canvas(self, background='white')
+        save_canvas.bind('<B1-Motion>', self.draw)
+        save_canvas.bind('<Button-1>', self.draw)
+        save_canvas.bind('<ButtonRelease-1>', self.save)
+        save_canvas.bind('<KeyPress-r>', self.restore_state_undo)
+        save_canvas.bind('<KeyPress-s>', self.restore_state_redo)
 
-        canvas_state = self.canvas.find_all()
-        for obj in canvas_state:
-            # Get object type (e.g., line, rectangle, oval, etc.)
-            obj_type = self.canvas.type(obj)
-            
-            # Get object coordinates
-            coords = self.canvas.coords(obj)
-            
-            # Get all configurable attributes
-            attributes = self.canvas.itemconfig(obj)
-            
-            # Prepare attributes dictionary for new object
-            new_attributes = {attr: details[-1] for attr, details in attributes.items()}
-            
-            # Create the same object on the new canvas
-            if obj_type == "line":
-                saved_canvas.create_line(*coords, **new_attributes)
-            elif obj_type == "rectangle":
-                saved_canvas.create_rectangle(*coords, **new_attributes)
-            elif obj_type == "oval":
-                saved_canvas.create_oval(*coords, **new_attributes)
-            elif obj_type == "text":
-                saved_canvas.create_text(*coords, **new_attributes)
-            elif obj_type == "polygon":
-                saved_canvas.create_polygon(*coords, **new_attributes)
-
-        self.window.undo_list.append(saved_canvas)
-        print("saved")
+        for item_id in self.canvas.find_all():
+                # Get item properties
+                item_type = self.canvas.type(item_id)
+                coords = self.canvas.coords(item_id)
+                options = self.canvas.itemconfig(item_id)
+                
+                # Recreate the object in the target canvas
+                if item_type == "rectangle":
+                    save_canvas.create_rectangle(*coords, **self.get_options(options))
+                elif item_type == "oval":
+                    save_canvas.create_oval(*coords, **self.get_options(options))
+                elif item_type == "line":
+                    save_canvas.create_line(*coords, **self.get_options(options))
+                elif item_type == "text":
+                    save_canvas.create_text(*coords, **self.get_options(options))
+                elif item_type == "polygon":
+                    save_canvas.create_polygon(*coords, **self.get_options(options))
+        self.window.undo_list.append(save_canvas)
 
     def restore_state_undo(self, event):
-        canvas_to_restore = self.window.undo_list[len(self.window.undo_list) - 1]
-        self.window.undo_list.remove(canvas_to_restore)
-        self.canvas.pack_forget()
-        self.create_widgets()
-
-        # Get all objects from the saved canvas
-        saved_state = canvas_to_restore.find_all()
-
-        for obj in saved_state:
-            # Get object type (e.g., line, rectangle, oval, etc.)
-            obj_type = canvas_to_restore.type(obj)
-            
-            # Get object coordinates
-            coords = canvas_to_restore.coords(obj)
-            
-            # Get all configurable attributes
-            attributes = canvas_to_restore.itemconfig(obj)
-            
-            # Prepare attributes dictionary for the new object
-            new_attributes = {attr: details[-1] for attr, details in attributes.items()}
-            
-            # Recreate the object on the target canvas
-            if obj_type == "line":
-                self.canvas.create_line(*coords, **new_attributes)
-            elif obj_type == "rectangle":
-                self.canvas.create_rectangle(*coords, **new_attributes)
-            elif obj_type == "oval":
-                self.canvas.create_oval(*coords, **new_attributes)
-            elif obj_type == "text":
-                self.canvas.create_text(*coords, **new_attributes)
-            elif obj_type == "polygon":
-                self.canvas.create_polygon(*coords, **new_attributes)
-        print("restored")
+        if len(self.window.undo_list) > 0:
+            self.canvas.pack_forget()
+            self.window.redo_list.append(self.window.undo_list[-1])
+            self.canvas = self.window.undo_list[-1]
+            self.canvas.pack(expand=True, fill='both')
+            self.window.undo_list = self.window.undo_list[:-1]
 
     def restore_state_redo(self, event):
-        print("restored")
-        ind = len(self.window.undo_list) - 1
-        canvas_to_restore = self.window.undo_list[ind]
-        self.canvas.pack_forget()
-        self.canvas = canvas_to_restore
+        if len(self.window.redo_list) > 0:
+            self.canvas.pack_forget()
+            self.canvas = self.window.redo_list[-1]
+            self.canvas.pack(expand=True, fill='both')
+            self.window.redo_list = self.window.redo_list[:-1]
     
     def draw(self, event):
         if self.window.get_clear() == True:
